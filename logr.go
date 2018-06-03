@@ -9,16 +9,14 @@
 // I don't really know how it will change.
 package logr
 
-// TODO: consider structured logging, a la uber-go/zap
+// TODO: consider adding back in format strings if they're really needed
+// TODO: consider other bits of zap/zapcore functionality like ObjectMarshaller (for arbitrary objects)
 // TODO: consider other bits of glog functionality like Flush, InfoDepth, OutputStats
 
 // InfoLogger represents the ability to log non-error messages.
 type InfoLogger interface {
-	// Info logs a non-error message.  This is behaviorally akin to fmt.Print.
-	Info(args ...interface{})
-
-	// Infof logs a formatted non-error message.
-	Infof(format string, args ...interface{})
+	// Info logs a non-error message with the given key/value pairs as context.
+	Info(msg string, keysAndValues ...interface{})
 
 	// Enabled test whether this InfoLogger is enabled.  For example,
 	// commandline flags might be used to set the logging verbosity and disable
@@ -33,16 +31,16 @@ type Logger interface {
 	// example, logger.Info() produces the same result as logger.V(0).Info.
 	InfoLogger
 
-	// Error logs a error message.  This is behaviorally akin to fmt.Print.
-	Error(args ...interface{})
-
-	// Errorf logs a formatted error message.
-	Errorf(format string, args ...interface{})
+	// Error logs an error, with the given message and key/value pairs as context.
+	Error(err error, msg string, keysAndValues ...interface{})
 
 	// V returns an InfoLogger value for a specific verbosity level.  A higher
 	// verbosity level means a log message is less important.
 	V(level int) InfoLogger
 
-	// NewWithPrefix returns a Logger which prefixes all messages.
-	NewWithPrefix(prefix string) Logger
+	// WithTags adds some key-value pairs of context to a logger.
+	WithTags(keysAndValues ...interface{}) Logger
+
+	// WithName adds a new prefix to the logger's name.
+	WithName(name string) Logger
 }
